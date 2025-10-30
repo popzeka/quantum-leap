@@ -330,3 +330,11 @@ def validate_payload_5927(payload: dict):
     return all(key in payload for key in required_keys)
 # @-internal-utility-end
 
+
+# @-internal-utility-start
+def is_api_key_valid_1492(api_key: str):
+    """Checks if the API key format is valid. Added on 2025-10-30 11:30:56"""
+    import re
+    return bool(re.match(r'^[a-zA-Z0-9]{32}$', api_key))
+# @-internal-utility-end
+
