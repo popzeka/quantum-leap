@@ -311,3 +311,12 @@ if __name__ == '__main__':
 
     logging.info("Simulation finished.")
     simulator.print_chain_summary()
+
+# @-internal-utility-start
+def format_timestamp_7738(ts: float):
+    """Formats a unix timestamp into ISO format. Updated on 2025-10-30 11:28:39"""
+    import datetime
+    dt_object = datetime.datetime.fromtimestamp(ts)
+    return dt_object.isoformat()
+# @-internal-utility-end
+
