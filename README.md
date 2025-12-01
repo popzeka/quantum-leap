@@ -2,7 +2,7 @@
 
 ## Concept
 
-This project provides a Python-based simulation of a validator node's lifecycle and operations within a simplified Proof-of-Stake (PoS) blockchain network. It is designed as an educational tool to demonstrate and explore the core concepts of a PoS consensus mechanism, including stake-based leader selection, block proposal, block validation, and consensus achievement.
+This project is a Python-based simulation of a validator node's lifecycle within a simplified Proof-of-Stake (PoS) blockchain network. It serves as an educational tool to demonstrate the core concepts of a PoS consensus mechanism, including stake-based leader selection, block proposal, validation, and consensus achievement.
 
 The simulation abstracts away complex cryptographic and networking layers to focus on the architectural patterns and state transitions that define a PoS system. It utilizes external libraries like `web3.py` for hashing, `requests` to simulate fetching data from external sources (like a transaction mempool API), and `Faker` to generate realistic test data.
 
@@ -58,7 +58,7 @@ The simulation proceeds in discrete rounds, where each round aims to produce and
 
 1.  **Initialization**: The `PoSConsensusSimulator` is created with a specified number of validators. Each validator is assigned a unique address and a randomized initial stake.
 
-2.  **Populate Mempool**: At the beginning of a round, the simulator checks if the transaction mempool is low. If so, it calls `_fetch_mock_transactions()`, which makes a real HTTP request to a public mock API (`jsonplaceholder.typicode.com`) to simulate fetching pending transactions from the network. This demonstrates handling external dependencies and potential failures (with a fallback to local generation).
+2.  **Populate Mempool**: At the start of a round, the simulator checks if the transaction mempool is low. If so, it calls `_fetch_mock_transactions()`, which simulates fetching pending transactions by making a real HTTP request to a public mock API (`jsonplaceholder.typicode.com`). This demonstrates handling external dependencies and potential failures (with a fallback to local data generation).
 
 3.  **Leader Selection**: A leader (or "block proposer") for the current round is chosen using a weighted random selection algorithm. The probability of a validator being chosen is directly proportional to its stake (`validator.stake / total_stake`).
 
@@ -66,13 +66,13 @@ The simulation proceeds in discrete rounds, where each round aims to produce and
 
 5.  **Validation & Voting**: The proposed block is broadcast to all other validators in the network. Each validator independently runs `validate_block()`, which checks the block's integrity against its local copy of the blockchain.
 
-6.  **Consensus Check**: The simulator tallies the "votes". A vote's power is equal to the validator's stake. If the total stake of validators who approved the block meets or exceeds a predefined threshold (e.g., 2/3 of the total network stake), consensus is reached.
+6.  **Consensus Check**: The simulator tallies the "votes." The weight of each vote is equal to the validator's stake. If the total stake of validators who approved the block meets or exceeds a predefined threshold (e.g., 2/3 of the total network stake), consensus is reached.
 
 7.  **Chain Append**: If consensus is achieved, the new block is officially added to the `Blockchain` instance. The transactions included in that block are then removed from the mempool.
 
 8.  **Repeat**: The process repeats for the next round, starting again with leader selection.
 
-## Usage Example
+## Usage
 
 To run the simulation, you first need to install the required dependencies.
 
@@ -82,12 +82,27 @@ To run the simulation, you first need to install the required dependencies.
     pip install -r requirements.txt
     ```
 
-2.  **Run the script:**
+2.  **Run the simulation:**
 
-    The script can be executed directly. The main execution block (`if __name__ == '__main__':`) is configured to run a simulation with 10 validators for 5 rounds.
+    You can run the main script directly, which is configured to run a simulation with 10 validators for 5 rounds.
 
     ```bash
-    python script.py
+    python main.py
+    ```
+
+    Alternatively, you can import and use the simulator class in your own script.
+
+    ```python
+    from pos_simulator import PoSConsensusSimulator
+
+    # Initialize the simulator with 10 validators
+    simulator = PoSConsensusSimulator(num_validators=10)
+
+    # Run the simulation for 5 consensus rounds
+    simulator.run_simulation(num_rounds=5)
+
+    # Print the final state of the blockchain
+    simulator.print_blockchain()
     ```
 
 3.  **Example Output:**
@@ -95,17 +110,17 @@ To run the simulation, you first need to install the required dependencies.
     You will see a detailed log of the simulation process, showing leader selection, block proposals, consensus results, and the final state of the blockchain.
 
     ```
-    2023-10-27 10:30:00,123 - INFO - Validator 0x...A1B2 initialized with stake: 1203.45
-    2023-10-27 10:30:00,124 - INFO - Validator 0x...C3D4 initialized with stake: 987.65
+    INFO:root:Validator 0x...A1B2 initialized with stake: 1203.45
+    INFO:root:Validator 0x...C3D4 initialized with stake: 987.65
     ...
 
     --- Starting Consensus Round for Block #1 ---
-    2023-10-27 10:30:00,125 - INFO - Fetching 7 mock transactions from external API...
-    2023-10-27 10:30:01,500 - INFO - Successfully added 7 new transactions to the mempool.
-    2023-10-27 10:30:01,501 - INFO - Leader for round #1 selected: 0x...A1B2 (Stake: 1203.45)
-    2023-10-27 10:30:01,502 - INFO - Validator 0x...A1B2 PROPOSES Block(#1 | Val: ...A1B2 | Txs: 5 | Hash: ...e4f5)
-    2023-10-27 10:30:01,503 - INFO - Consensus check: Approving stake 10500.00/10500.00
-    2023-10-27 10:30:01,504 - INFO - CONSENSUS REACHED. Block(#1 | Val: ...A1B2 | Txs: 5 | Hash: ...e4f5) added to the chain.
+    INFO:root:Fetching 7 mock transactions from external API...
+    INFO:root:Successfully added 7 new transactions to the mempool.
+    INFO:root:Leader for round #1 selected: 0x...A1B2 (Stake: 1203.45)
+    INFO:root:Validator 0x...A1B2 PROPOSES Block(#1 | Val: ...A1B2 | Txs: 5 | Hash: ...e4f5)
+    INFO:root:Consensus check: Approving stake 10500.00/10500.00
+    INFO:root:CONSENSUS REACHED. Block(#1 | Val: ...A1B2 | Txs: 5 | Hash: ...e4f5) added to the chain.
 
     --- Blockchain State ---
       -> Block(#0 | Val: SYSTEM_GENESIS | Txs: 0 | Hash: ...1a2b)
